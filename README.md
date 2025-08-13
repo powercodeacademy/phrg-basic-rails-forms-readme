@@ -70,6 +70,161 @@ Rails automatically:
 - Generates the correct URL based on your routes
 - Creates appropriate submit button text
 
+## `form_with` vs `form_for`
+
+You might see older Rails code using `form_for` instead of `form_with`. Understanding the differences is important for working with both legacy and modern Rails applications.
+
+### `form_for` (Legacy - Avoid in New Code)
+
+`form_for` was the primary way to create model-backed forms in Rails before version 5.1:
+
+```erb
+<!-- Basic form_for usage -->
+<%= form_for @book do |form| %>
+  <%= form.label :title %>
+  <%= form.text_field :title %>
+  <%= form.label :author %>
+  <%= form.text_field :author %>
+  <%= form.submit %>
+<% end %>
+
+<!-- For editing existing records -->
+<%= form_for [@publisher, @book] do |form| %>
+  <%= form.text_field :title %>
+  <%= form.submit %>
+<% end %>
+```
+
+**`form_for` characteristics:**
+
+- **Model-only**: Only works with model objects (ActiveRecord instances)
+- **Automatic routing**: Automatically generates URLs based on the model's state (new vs persisted)
+- **Traditional submission**: Submits forms normally (not AJAX) by default
+- **Separate helpers needed**: Required `form_tag` for non-model forms
+- **Limited flexibility**: Different syntax for nested resources and custom URLs
+
+### `form_with` (Modern - Use This)
+
+`form_with` was introduced in Rails 5.1 as a unified form helper:
+
+```erb
+<!-- Model-based form -->
+<%= form_with model: @book, local: true do |form| %>
+  <%= form.label :title %>
+  <%= form.text_field :title %>
+  <%= form.label :author %>
+  <%= form.text_field :author %>
+  <%= form.submit %>
+<% end %>
+
+<!-- URL-based form (no model needed) -->
+<%= form_with url: books_path, method: :post, local: true do |form| %>
+  <%= form.text_field :title %>
+  <%= form.submit %>
+<% end %>
+
+<!-- Scope-based form for custom parameter structure -->
+<%= form_with scope: :book, url: books_path, local: true do |form| %>
+  <%= form.text_field :title %>
+  <%= form.submit %>
+<% end %>
+```
+
+**`form_with` characteristics:**
+
+- **Unified helper**: Works with models, URLs, or custom scopes
+- **Flexible routing**: Can handle any URL pattern or HTTP method
+- **AJAX by default**: Submits via AJAX unless `local: true` is specified
+- **Consistent API**: Same syntax for all form types
+- **Modern features**: Better integration with Rails UJS and Turbo
+
+### Key Differences Explained
+
+#### 1. **Flexibility**
+
+```erb
+<!-- form_for: Limited to models only -->
+<%= form_for @book do |f| %>
+  <!-- Works only with @book model -->
+<% end %>
+
+<!-- form_with: Works with models, URLs, or scopes -->
+<%= form_with model: @book, local: true do |f| %>
+  <!-- Model-based -->
+<% end %>
+
+<%= form_with url: "/custom-endpoint", local: true do |f| %>
+  <!-- URL-based for any endpoint -->
+<% end %>
+```
+
+#### 2. **AJAX Behavior**
+
+```erb
+<!-- form_for: Normal form submission by default -->
+<%= form_for @book do |f| %>
+  <!-- Submits normally, reloads page -->
+<% end %>
+
+<!-- form_with: AJAX by default, normal with local: true -->
+<%= form_with model: @book do |f| %>
+  <!-- Submits via AJAX -->
+<% end %>
+
+<%= form_with model: @book, local: true do |f| %>
+  <!-- Normal submission, reloads page -->
+<% end %>
+```
+
+#### 3. **Parameter Structure**
+
+Both helpers generate the same parameter structure when using models:
+
+```ruby
+# Both generate: { "book" => { "title" => "...", "author" => "..." } }
+```
+
+#### 4. **Nested Resources**
+
+```erb
+<!-- form_for: Array syntax for nested resources -->
+<%= form_for [@publisher, @book] do |f| %>
+  <!-- Creates URL like /publishers/1/books -->
+<% end %>
+
+<!-- form_with: More explicit model syntax -->
+<%= form_with model: [@publisher, @book], local: true do |f| %>
+  <!-- Same result, clearer intent -->
+<% end %>
+```
+
+### Why `form_with` is Preferred
+
+1. **Future-proof**: `form_for` is deprecated and will be removed in future Rails versions
+2. **One helper to learn**: Instead of memorizing `form_for`, `form_tag`, and their differences
+3. **More powerful**: Handles any form scenario with consistent syntax
+4. **Better defaults**: Includes CSRF protection and works well with modern JavaScript frameworks
+5. **Cleaner code**: Explicit parameters make intentions clear (`model:`, `url:`, `scope:`)
+6. **Turbo integration**: Works seamlessly with Rails 7's Turbo framework
+
+### Migration Strategy
+
+When updating legacy code:
+
+```erb
+<!-- Old form_for -->
+<%= form_for @book do |f| %>
+  <%= f.text_field :title %>
+<% end %>
+
+<!-- New form_with equivalent -->
+<%= form_with model: @book, local: true do |f| %>
+  <%= f.text_field :title %>
+<% end %>
+```
+
+The main change is adding `model:` and `local: true` parameters. Everything else stays the same!
+
 ## Form Input Types
 
 Rails provides helpers for common input types:
@@ -185,131 +340,29 @@ This gives you:
 - `GET /books/:id/edit` → `books#edit` (shows edit form)
 - `PATCH /books/:id` → `books#update` (processes edit form)
 
-## Displaying Validation Errors
-
-When your model has validation errors, you can display them in your form:
-
-```erb
-<%= form_with model: @book, local: true do |form| %>
-  <% if @book.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@book.errors.count, "error") %> prevented this book from being saved:</h2>
-      <ul>
-        <% @book.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <%= form.label :title %>
-    <%= form.text_field :title %>
-    <% if @book.errors[:title].any? %>
-      <span class="error"><%= @book.errors[:title].first %></span>
-    <% end %>
-  </div>
-
-  <%= form.submit %>
-<% end %>
-```
-
-The errors come from your model validations:
-
-```ruby
-class Book < ApplicationRecord
-  validates :title, presence: true, length: { minimum: 2 }
-  validates :author, presence: true
-end
-```
-
-## Using Form Partials
-
-To keep your code DRY (Don't Repeat Yourself), you can create reusable form partials:
-
-```erb
-<!-- _book_form.html.erb -->
-<%= form_with model: book, local: true do |form| %>
-  <% if book.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(book.errors.count, "error") %> prevented this book from being saved:</h2>
-      <ul>
-        <% book.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <%= form.label :title %>
-    <%= form.text_field :title %>
-  </div>
-
-  <div class="field">
-    <%= form.label :author %>
-    <%= form.text_field :author %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
-```
-
-Then use the partial in both your new and edit views:
-
-```erb
-<!-- new.html.erb -->
-<h1>New Book</h1>
-<%= render 'book_form', book: @book %>
-
-<!-- edit.html.erb -->
-<h1>Edit Book</h1>
-<%= render 'book_form', book: @book %>
-```
-
 ## Key Points to Remember
 
 1. **Always use `local: true`** in your `form_with` helper
 2. **Use strong parameters** in your controller to prevent security issues
 3. **Handle both success and failure cases** in your controller actions
 4. **Include labels** for accessibility
-5. **Display validation errors** to help users fix their input
+5. **Use `form_with` instead of `form_for`** for modern Rails development
 
 ## Code Examples
 
 This repository (https://github.com/powercodeacademy/phrg-basic-rails-forms-readme) includes code examples that demonstrate all the form concepts covered in this README. The example files show:
 
-- **Models:** `Book` with validations
+- **Models:** `Book` with basic setup
 - **Controllers:** `BooksController` with form handling and strong parameters
 - **Views:** Complete form examples including:
   - Model-based forms (`_book_form.html.erb`)
-  - Form validation and error handling
   - All input types from the README
 - **Routes:** RESTful routes configuration
 
 ### Key Files to Study
 
 1. `app/controllers/books_controller.rb` - Controller focused on form handling
-2. `app/models/book.rb` - Model with validations
+2. `app/models/book.rb` - Basic model setup
 3. `app/views/books/_book_form.html.erb` - Comprehensive form with all input types
 4. `app/views/books/new.html.erb` and `edit.html.erb` - Form usage examples
 5. `config/routes.rb` - RESTful routes for forms
-
-## Practice Exercise
-
-Now that you understand Rails forms, try creating your own form! Pick a simple model like:
-
-- A `Recipe` with title, ingredients, and instructions
-- A `Song` with title, artist, and genre
-- A `Movie` with title, director, and year
-
-Practice creating:
-
-1. The model with validations
-2. Controller actions for `new` and `create`
-3. Routes
-4. The form view with error handling
-
-This will help reinforce what you've learned about Rails forms and ERB templates!
