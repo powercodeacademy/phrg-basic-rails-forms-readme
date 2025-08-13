@@ -281,19 +281,18 @@ Then use the partial in both your new and edit views:
 
 This repository (https://github.com/powercodeacademy/phrg-basic-rails-forms-readme) includes code examples that demonstrate all the form concepts covered in this README. The example files show:
 
-- **Models:** `Book`, `Chapter`, `Publisher` with validations and associations
+- **Models:** `Book` with validations
 - **Controllers:** `BooksController` with form handling and strong parameters
 - **Views:** Complete form examples including:
   - Model-based forms (`_book_form.html.erb`)
   - Form validation and error handling
-  - Nested forms for chapters
   - All input types from the README
 - **Routes:** RESTful routes configuration
 
 ### Key Files to Study
 
 1. `app/controllers/books_controller.rb` - Controller focused on form handling
-2. `app/models/book.rb` - Model with validations and associations
+2. `app/models/book.rb` - Model with validations
 3. `app/views/books/_book_form.html.erb` - Comprehensive form with all input types
 4. `app/views/books/new.html.erb` and `edit.html.erb` - Form usage examples
 5. `config/routes.rb` - RESTful routes for forms

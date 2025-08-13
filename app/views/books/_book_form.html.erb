@@ -1,0 +1,68 @@
+<!-- _book_form.html.erb -->
+<%= form_with model: book, local: true do |form| %>
+<% if book.errors.any? %>
+<div id="error_explanation">
+  <h2><%= pluralize(book.errors.count, "error") %> prevented this book from being saved:</h2>
+  <ul>
+    <% book.errors.full_messages.each do |message| %>
+    <li><%= message %></li>
+    <% end %>
+  </ul>
+</div>
+<% end %>
+
+<div class="field">
+  <%= form.label :title %>
+  <%= form.text_field :title %>
+  <% if book.errors[:title].any? %>
+  <span class="error"><%= book.errors[:title].first %></span>
+  <% end %>
+</div>
+
+<div class="field">
+  <%= form.label :author %>
+  <%= form.text_field :author %>
+  <% if book.errors[:author].any? %>
+  <span class="error"><%= book.errors[:author].first %></span>
+  <% end %>
+</div>
+
+<div class="field">
+  <%= form.label :genre %>
+  <%= form.select :genre, ['Fiction', 'Non-Fiction', 'Mystery', 'Romance'], { include_blank: "Select a genre" } %>
+  <% if book.errors[:genre].any? %>
+  <span class="error"><%= book.errors[:genre].first %></span>
+  <% end %>
+</div>
+
+<div class="field">
+  <%= form.label :pages %>
+  <%= form.number_field :pages %>
+</div>
+
+<div class="field">
+  <%= form.check_box :available %>
+  <%= form.label :available, "Available for checkout" %>
+</div>
+
+<div class="field">
+  <%= form.label :format, "Format" %>
+  <div>
+    <%= form.radio_button :format, 'hardcover' %>
+    <%= form.label :format_hardcover, 'Hardcover' %>
+  </div>
+  <div>
+    <%= form.radio_button :format, 'paperback' %>
+    <%= form.label :format_paperback, 'Paperback' %>
+  </div>
+</div>
+
+<div class="field">
+  <%= form.label :published_date %>
+  <%= form.date_field :published_date %>
+</div>
+
+<div class="actions">
+  <%= form.submit %>
+</div>
+<% end %>

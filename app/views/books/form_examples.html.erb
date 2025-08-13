@@ -1,0 +1,72 @@
+<!-- Form examples from the README -->
+
+<h1>Rails Forms Examples</h1>
+
+<h2>1. Basic Form Without a Model</h2>
+<%= form_with url: "/books", method: :post, local: true do |form| %>
+<%= form.label :title %>
+<%= form.text_field :title %>
+
+<%= form.label :author %>
+<%= form.text_field :author %>
+
+<%= form.submit "Add Book" %>
+<% end %>
+
+<hr>
+
+<h2>2. Form With a Model</h2>
+<% sample_book = Book.new %>
+<%= form_with model: sample_book, local: true do |form| %>
+<%= form.label :title %>
+<%= form.text_field :title %>
+
+<%= form.label :author %>
+<%= form.text_field :author %>
+
+<%= form.submit %>
+<% end %>
+
+<hr>
+
+<h2>3. Form Input Types</h2>
+<% sample_book = Book.new %>
+<%= form_with model: sample_book, local: true do |form| %>
+<!-- Text inputs -->
+<div class="field">
+  <%= form.label :title %>
+  <%= form.text_field :title %>
+</div>
+
+<div class="field">
+  <%= form.label :pages %>
+  <%= form.number_field :pages %>
+</div>
+
+<!-- Dropdowns -->
+<div class="field">
+  <%= form.label :genre %>
+  <%= form.select :genre, ['Fiction', 'Non-Fiction', 'Mystery', 'Romance'] %>
+</div>
+
+<!-- Checkboxes and Radio Buttons -->
+<div class="field">
+  <%= form.check_box :available %>
+  <%= form.label :available, "Available" %>
+</div>
+
+<div class="field">
+  <%= form.radio_button :format, 'hardcover' %>
+  <%= form.label :format_hardcover, 'Hardcover' %>
+  <%= form.radio_button :format, 'paperback' %>
+  <%= form.label :format_paperback, 'Paperback' %>
+</div>
+
+<!-- Dates -->
+<div class="field">
+  <%= form.label :published_date %>
+  <%= form.date_field :published_date %>
+</div>
+
+<%= form.submit %>
+<% end %>
