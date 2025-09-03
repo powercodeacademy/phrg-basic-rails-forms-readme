@@ -12,7 +12,7 @@ By the end of this lesson, you will be able to:
 
 ## Introduction
 
-You've just learned about `form_tag` and `form_for` in previous lessons, but I now I have some bad news. These trusty helpers have served Rails developers for years, but, like dial-up internet and flip phones, they’re now on the Rails 7+ endangered species list. As of Rails 5.1, both `form_for` and `form_tag` are officially deprecated and headed for a well-earned retirement in the great code graveyard in the sky.
+You've just learned about `form_tag` and `form_for` in previous lessons, but I now have some bad news for you. These trusty helpers have served Rails developers for years, but, like dial-up internet and flip phones, they’re now on the Rails 7+ endangered species list. As of Rails 5.1, both `form_for` and `form_tag` are officially deprecated and headed for a well-earned retirement in the great code graveyard in the sky.
 
 But don’t worry—your time learning them was not wasted! You’ll still encounter both in legacy codebases throughout your career, and knowing how they work will help you read and update older projects.
 
