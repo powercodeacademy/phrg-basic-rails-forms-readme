@@ -7,7 +7,6 @@ By the end of this lesson, you will be able to:
 - Create forms using Rails form helpers in ERB templates
 - Use `form_with` to build forms with and without model objects
 - Handle form data in controllers using strong parameters
-- Display form validation errors in your views
 - Pass data from controllers to views using instance variables
 
 ## Introduction
